@@ -4,15 +4,15 @@
 
 # Site
 title: SeeYouTomorrow
-subtitle:
-description:
-author: John Doe
+subtitle: 刘腾营的博客
+description: 
+author: 刘腾营
 language: zh-Hans
-timezone:
+timezone: 
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
-url: http://yoursite.com
+url: http://sUtomorrow.github.io
 root: /
 permalink: :year/:month/:day/:title/
 permalink_defaults:
