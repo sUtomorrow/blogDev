@@ -10,6 +10,8 @@ author: 刘腾营
 language: zh-Hans
 timezone: 
 
+baidu_analytics: 6c61f4d5090c79efce607febff431083
+
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
 url: http://sUtomorrow.github.io
