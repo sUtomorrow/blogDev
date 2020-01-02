@@ -25,7 +25,7 @@ $$
 \end{aligned}
 $$
 
-由于$\sum_{z^{(i)}}Q(z^{(i)}) = 1$，因此$\log \sum_{z^{(i)}} Q(z^{(i)}) \frac{P(x^{(i)}, z^{(i)}|\theta)}{Q(z^{(i)})} = \log E(\frac{P(x^{(i)}, z^{(i)}|\theta)}{Q(z^{(i)})})$，又由于$\log$为凸函数，因此$\log E(\frac{P(x^{(i)}, z^{(i)}|\theta)}{Q(z^{(i)})}) \ge E(\log \frac{P(x^{(i)}, z^{(i)}|\theta)}{Q(z^{(i)})})$，即：
+由于$\sum_{z^{(i)}}Q(z^{(i)}) = 1$，因此$\log \sum_{z^{(i)}} Q(z^{(i)}) \frac{P(x^{(i)}, z^{(i)}|\theta)}{Q(z^{(i)})} = \log E(\frac{P(x^{(i)}, z^{(i)}|\theta)}{Q(z^{(i)})})$，又由于$\log$为凹函数，因此$\log E(\frac{P(x^{(i)}, z^{(i)}|\theta)}{Q(z^{(i)})}) \ge E(\log \frac{P(x^{(i)}, z^{(i)}|\theta)}{Q(z^{(i)})})$，即：
 
 $$
 \sum_{i=1}^{m}\log \sum_{z^{(i)}} Q(z^{(i)}) \frac{P(x^{(i)}, z^{(i)}|\theta)}{Q(z^{(i)})} \ge \sum_{i=1}^{m} \sum_{z^{(i)}} Q(z^{(i)}) \log \frac{P(x^{(i)}, z^{(i)}|\theta)}{Q(z^{(i)})}
