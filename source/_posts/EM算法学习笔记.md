@@ -13,6 +13,8 @@ mathjax: true
 
 对于这个问题，直接对$Z$和$\theta$求导过于复杂，可能无法计算，因此需要EM算法来进行优化，得到一个可以接受的局部最优解。
 
+## EM算法
+
 EM算法分为两个重复的步骤，Expectation和Maximization
 
 ### Expectation
