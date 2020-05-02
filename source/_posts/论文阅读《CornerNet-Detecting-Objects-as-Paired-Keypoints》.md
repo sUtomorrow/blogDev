@@ -20,7 +20,7 @@ mathjax: true
 - feature map在经过下采样之后，feature map上的点的位置要映射回原图，这个时候存在位置精度的损失，可能造成预测位置的偏差。
 
 ## 具体做法
-针对第一个角点匹配的问题，这里引用了另外一篇论文的方法（《ssociative embedding: End-to-end learning forjoint detection and grouping》，具体我没看），在模型中，两个角点坐标的feature map都会额外预测一个一维的嵌入向量（embedding vector），希望当两个角点匹配时，两个角点位置预测的嵌入向量的距离尽可能接近，否则尽可能远离（**这里嵌入向量的想法没看得太懂，可能还要看看原论文才能理解，除此之外计算量貌似有点大**），因此定义了两个loss如下所示，其中$e_{t_k}$代表第k个目标左上角点的嵌入向量，$e_{b_k}$代表第k个目标右下角点的嵌入向量，$e_k = \frac{(e_{t_k} + e_{b_k})}{2}$，N代表目标的个数，$\Delta$在论文的所有实验中均为1。
+针对第一个角点匹配的问题，这里引用了另外一篇论文的方法（《ssociative embedding: End-to-end learning forjoint detection and grouping》），在模型中，两个角点坐标的feature map都会额外预测一个一维的嵌入向量（embedding vector），希望当两个角点匹配时，两个角点位置预测的嵌入向量的距离尽可能接近，否则尽可能远离（**这里嵌入向量的想法没看得太懂，可能还要看看原论文才能理解，除此之外计算量貌似有点大**），因此定义了两个loss如下所示，其中$e_{t_k}$代表第k个目标左上角点的嵌入向量，$e_{b_k}$代表第k个目标右下角点的嵌入向量，$e_k = \frac{(e_{t_k} + e_{b_k})}{2}$，N代表目标的个数，$\Delta$在论文的所有实验中均为1。
 $$
 \begin{aligned}
     L_{pull} &= \frac{1}{N}\sum_{k=1}^N[(e_{t_k} - e_k) ^ 2 + (e_{b_k} - e_k) ^ 2]\\
