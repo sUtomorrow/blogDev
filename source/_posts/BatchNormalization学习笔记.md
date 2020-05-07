@@ -15,7 +15,7 @@ BN层的操作有两步：
 - 首先对数据进行归一化（normalize）：设$\mu$，$\sigma^2$分别是$x$的均值和方差，归一化之后的$x$变为$\hat{x} = \frac{x - \mu}{\sqrt{\sigma^2 + \epsilon}}$，其中$\epsilon$是个防止分母为零的平滑项，
 - 然后对归一化的数据进行scale和shift（transform）：$\gamma \hat{x} + \beta$，最终该层加入BN之后，表达式变为$o = g(\gamma \hat{x} + \beta)$
 
-这里先不管$\mu,\ \sigma^2,\ \epsilon,\ \beta$怎么得到，上面的操作看起来非常简单，不过这里有一点细节：一般情况下，这里的$x,\ x_i,\ \mu,\ \sigma^2,\ \epsilon,\ \gamma,\ \beta$全都是向量，因为一个样本由多个特征构成，BatchNormalization其实是对每个特征进行normalize和transform，因此上面涉及到的计算，其实全都是逐元素运算，如果是对于图像数据，在CNN中的BatchNormalization其实是将特征图上的每个点当做一个样本的，例如一个$H\times W \times C$大小的特征图，那么其中$1 \times 1 \times C$的一个点就被当成一个样本，其包含$C$个特征。
+这里先不管$\mu,\ \sigma^2,\ \epsilon,\ \beta$怎么得到，上面的操作看起来非常简单，不过这里有一点细节：一般情况下，这里的$x,\ x_i,\ \mu,\ \sigma^2,\ \epsilon,\ \gamma,\ \beta$全都是向量，因为一个样本由多个特征构成，BatchNormalization其实是对每个特征进行normalize和transform，因此上面涉及到的计算，其实全都是逐元素运算，如果是对于图像数据，在CNN中的BatchNormalization其实是将特征图上的每个点当做一个样本的，例如一个$N\times H\times W\times C$大小的特征图（$N$是batch size），那么其中$1\times 1 \times 1 \times C$的一个点就被当成一个样本，其包含$C$个特征，所有样本共用$C$个均值和方差。
 
 ## 训练过程
 对于BatchNormalizatioin层，训练过程其实就是确定$\mu,\ \sigma^2,\ \gamma,\ \beta$的过程。
@@ -77,3 +77,15 @@ $$
 
 
 BatchNormalization的缺点也很明显：如果batch size比较小，那么想要通过$\sigma^2_B$和$\mu_B$来估计所有特征的方差和均值非常困难。
+
+# BatchNormalization的变种
+除了BatchNormalization，还有一些Normalization方式，其对比如下图所示。
+
+![各种normalization对比](normalization.png)
+
+## GroupNormalization
+作为BatchNormalization的变种之一，GroupNormalization主要解决的问题是BatchNormalization对batch大小的依赖性。
+
+在CNN中，对于$N\times H\times W\times C$大小的特征图，BatchNormalization将其中每一个大小为$1\times 1\times 1\times C$看做一个样本，而GroupNormalization首先将$N\times H\times W\times C$大小的特征图拆分成$N\times H\times W\times \frac{C}{G}\times G$，然后在$H\times W\times \frac{C}{G}$范围内求方差和均值，得到$N \times G$个均值和方差，可以理解为样本个数为$H\times W\times \frac{C}{G}$，每个样本的维度为$N \times G$，这样做的好处是样本个数不依赖batch size，原论文中作者还解释说使用GroupNormalization将特征分组处理，更加符合特征之间的依赖性，对模型性能有提升。
+
+这里有个问题没想明白：训练时GroupNormalization的方差和均值都是$N\times 1\times 1\times 1\times G$大小，如果在测试时batch size为1，如何处理。
