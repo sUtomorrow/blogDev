@@ -106,7 +106,7 @@ $$
 $rot_{180}trans(W)$则首先需要将$W$在$H_k\times W_k$大小上，旋转180度，然后对其中每个像素（其实每个像素都是个$C_o\times C_i$大小的矩阵）求转置得到，最终的形状是$H_k\times W_k\times C_i\times C_o$，其中$rot_{180}trans(W)_{i,j,k,l} = W_{H_k-i+1,W_k-j+1,l,k},\ i=1,2,...,H_k,\ j=1,2,...,W_k,\ k=1,2,...,C_o,\ l=1,2,...,C_i$
 
 则有:
-$$\delta_{i} = padpad(\delta_{i+1}) \star rot_{180}trans(w_{i+1}) \odot\sigma'(z_i)$$
+$$\delta_{i} = padpad(\delta_{i+1}) \star rot_{180}trans(w_{i+1}) \odot\sigma_{i}'(z_i)$$
 
 其中$\odot$表示逐元素乘法，由于这里不是向量和向量乘积，因此不能像之前一样表示成$diag$矩阵乘以向量的形式。
 
@@ -133,7 +133,7 @@ $$
 因此如果第$i$层是个卷积层，那么这一层的反向传播核心公式如下：
 $$
 \begin{aligned}
-    \delta_{i-1} &= padpad(\delta_i) \star rot_{180}trans(w_i) \odot\sigma'(z_{i-1})\\
+    \delta_{i-1} &= padpad(\delta_i) \star rot_{180}trans(w_i) \odot\sigma_{i-1}'(z_{i-1})\\
     \frac{\partial E}{\partial w_i} &= padpad(\delta_i) \star rot_{180}trans(l_{i-1})\\
     \frac{\partial E}{\partial b_i} &= \delta_{i}
 \end{aligned}
@@ -160,8 +160,8 @@ $$
 \begin{aligned}
     \delta_l = \frac{\partial E}{\partial z_l} &= diag(\sigma_l'(z_l))E'\\
     \delta_{i-1} &= \begin{cases}
-    diag(\sigma_i'(z_{i-1}))w_i^T\delta_i &如果第i层是全连接层\\
-    padpad(\delta_i) \star rot_{180}trans(w_i) \odot\sigma'(z_{i-1}) &如果第i层是卷积层\\
+    diag(\sigma_{i-1}'(z_{i-1}))w_i^T\delta_i &如果第i层是全连接层\\
+    padpad(\delta_i) \star rot_{180}trans(w_i) \odot\sigma_{i-1}'(z_{i-1}) &如果第i层是卷积层\\
     M\odot upsample(\delta_i) &如果第i层是池化层
     \end{cases}\\
     \frac{\partial E}{\partial w_i} &= \begin{cases}

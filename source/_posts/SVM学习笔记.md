@@ -58,7 +58,7 @@ $$
 &\triangledown_bL(w,b,\alpha) = 0 \\
 &1 - y_i(w^T x_i + b) \le 0 \\
 &\alpha_i \ge 0 \\
-&\alpha_i(1 - y_i(w^Tx_i + b)) = 0    
+&\alpha_i(1 - y_i(w^Tx_i + b)) = 0
 \end{aligned}
 $$
 
