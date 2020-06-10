@@ -75,7 +75,6 @@ $$
 
 **如果没有BatchNormalization，则$\hat{z} = \hat{x} = x = wl + b$，可以看出，添加了BatchNormalization之后，计算$\frac{\partial l}{\partial x_i}$的过程变得复杂了很多，仅考虑$\frac{\partial l}{\partial \hat{z}_i} \gamma \frac{1}{\sqrt{\sigma^2_B + \epsilon}}$这一项的话，可以看出，如果一个batch中，如果特征的标准差越大，则传递回去的梯度越小，如果模型学习到的标准差$\gamma$很大，则梯度也相应变大，这里相当于有个自动调整学习速率的功能因此增加了BN层的模型，能够适应更高的学习速率。但是后面一项就不好分析了，我暂时没有什么思路。如果有自己的想法欢迎留言讨论。**
 
-
 BatchNormalization的缺点也很明显：如果batch size比较小，那么想要通过$\sigma^2_B$和$\mu_B$来估计所有特征的方差和均值非常困难。
 
 # BatchNormalization的变种
@@ -88,4 +87,5 @@ BatchNormalization的缺点也很明显：如果batch size比较小，那么想�
 
 在CNN中，对于$N\times H\times W\times C$大小的特征图，BatchNormalization将其中每一个大小为$1\times 1\times 1\times C$看做一个样本，而GroupNormalization首先将$N\times H\times W\times C$大小的特征图拆分成$N\times H\times W\times \frac{C}{G}\times G$，然后在$H\times W\times \frac{C}{G}$范围内求方差和均值，得到$N \times G$个均值和方差，可以理解为样本个数为$H\times W\times \frac{C}{G}$，每个样本的维度为$N \times G$，这样做的好处是样本个数不依赖batch size，原论文中作者还解释说使用GroupNormalization将特征分组处理，更加符合特征之间的依赖性，对模型性能有提升。
 
-这里有个问题没想明白：训练时GroupNormalization的方差和均值都是$N\times 1\times 1\times 1\times G$大小，如果在测试时batch size为1，如何处理。
+训练时GroupNormalization的方差和均值都是$N\times 1\times 1\times 1\times G$大小，在测试时，Batch size基本上不会和训练时一样，不能和BN一样保存均值和方差参数，因此GN在模型保存时，只保存$\gamma$和$\beta$的值，均值和方差在预测过程中是每个样本计算一次的。
+
