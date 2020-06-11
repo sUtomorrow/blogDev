@@ -7,11 +7,11 @@ mathjax: true
 Attention机制最初是在自然语言处理领域取得了巨大成功，现在CNN中也在越来越多的使用Attention机制，这里就CNN中使用的Soft Attention（其中Attention weight是模型产生，可微可学习）做一些总结。
 
 # 对Attention的理解
-Attention使得神经网络（NN）可以更多的关注当前任务相关的输入（不一定是原始输入，也可能是提取出的特征），同时忽略和当前任务不相关的输入，本质上是希望对不同的信息计得到不同的权重，以代表不同信息的重要性程度。
+Attention使得神经网络（NN）可以更多的关注当前任务相关的输入（不一定是原始输入，也可能是提取出的特征），同时忽略和当前任务不相关的输入，本质上是希望对不同的信息计算得到不同的权重，以代表不同信息的重要性程度，并通过加权和的方式聚合这些信息。
 
-更抽象来说，在给定一个query元素的情况下，Attention机制的作用是：根据query元素将不同的key元素按照相关程度（或者重要程度）排序，在产生一个输出时，让模型可以选择哪些输入更加重要。这里query元素和key元素暂时没有合适的定义，不过可以通过两个例子来理解，例如在语言翻译问题中，这里的query element可以理解为输出语句中的某个单词，key element则是输入的语句中的某个单词，对于某个翻译得到的单词，不是每个输入单词都和其相关（或者说不是每个输入单词和这个翻译得到的单词的相关程度都一样），又例如在CNN中，query可以理解为图像上某个像素或者某个区域。
+更抽象来说，在给定一个query元素的情况下，Attention机制的作用是：根据query元素将不同的key元素按照相关程度（或者重要程度）排序，在产生一个输出时，让模型可以选择哪些输入更加重要。这里query元素和key元素暂时没有合适的定义，不过可以通过两个例子来理解，例如在语言翻译问题中，这里的query element可以理解为输出语句中的某个单词，key element则是输入的语句中的某个单词，对于某个翻译得到的单词，不是每个输入单词都和其相关（或者说不是每个输入单词和这个翻译得到的单词的相关程度都一样），又例如在CNN中，query和key都可以理解为图像上某个像素或者某个区域。
 
-在论文《An Empirical Study of Spatial Attention Mechanisms in Deep Networks》中提出了广义注意力机制的表达式（Generalized attention formulation），如下所示，其中$y_q$表示最终得到的Attention feature（通过Attention之后得到的特征或者输入），$q$表示query元素的位置，$k$表示key元素的位置，$M$表示Attention Head的个数（不同的Attention Head可以理解为不同的Attention计算方式），$z_q$表示位置为$q$的query元素的内容，$x_k$表示位置为$k$的key元素的内容，$A_m$表示计算Attention weight的函数，$W_m$和$W'_m$表示两个可学习参数，这两个参数也可以去掉（即设置为固定值），$\Omega_q$表示query元素可以涉及到的key元素的范围（例如翻译任务中，一般这个范围是整个输入语句的所有单词）
+在论文《An Empirical Study of Spatial Attention Mechanisms in Deep Networks》中提出了广义注意力机制的表达式（Generalized attention formulation），如下所示，其中$y_q$表示最终得到的Attention feature（通过Attention机制聚合得到的特征或者信息），$q$表示query元素的位置，$k$表示key元素的位置，$M$表示Attention Head的个数（不同的Attention Head可以理解为不同的Attention计算方式），$z_q$表示位置为$q$的query元素的内容，$x_k$表示位置为$k$的key元素的内容，$A_m$表示计算Attention weight的函数，$W_m$和$W'_m$表示两个可学习参数，这两个参数也可以去掉（即设置为固定值），$\Omega_q$表示query元素可以涉及到的key元素的范围（例如翻译任务中，一般这个范围是整个输入语句的所有单词）
 $$
     y_q = \sum\limits_{m=1}^M W_m[\sum\limits_{k\in \Omega_q}A_m(q, k, z_q, x_k)\odot W'_m x_k]
 $$
@@ -19,7 +19,7 @@ $$
 上面的公式中$W'_m x_k$可以理解为首先对key元素做一个投影变换，得到合适的特征，然后$A_m$函数针对范围$\Omega_q$中的每个key元素$x_k$计算出其Attention weight（这个attention weight一般和q, k, z_q, x_k这几个值有关，但有些计算方式不会全部使用），按照Attention weight对key元素的投影进行一个加权求和，最后再进行一次投影变换，得到合适的Attention 特征，这就完成了一种Attention的过程，但是有些时候可以多种Attention一起使用，因此可以$M$种Attention feature求和得到最终的Attention feature。
 
 根据上面的广义注意力机制表达式，设计一个注意力机制时，需要确定的内容就是一下几点：
-- $\Omega_q$，query元素可以涉及到的key元素的范围。
+- $\Omega_q$，一个query元素可以涉及到的key元素的范围。
 - $A_m$，计算Attention weight的函数。
 - $W_m$、$W'_m$，是否需要进行特征投影变换。
 
@@ -93,4 +93,14 @@ Non-local Neural Networks的结构示意图如下所示，其中$H,W$表示空�
 Excitation操作很容易和之前的广义注意力机制表达式类比，其本质上就是一种简单的Self-Attention，只不过Excitation操作计算出的Attention weight除了query位置以外全是0，这样就不是按照权重去聚合所有通道的信息，而是使用空间维度的全局信息来调整通道的响应幅值。
 
 ## Convolutional Block Attention Module
-未完待续。。。
+论文《CBAM: Convolutional Block Attention Module》中提出了一种同时进行channel和spatial attention的attention模块，称为CBAM。
+
+CBAM中包含了两种Attention，如下图所示，上面的结构是channel Attention部分，其接收输入之后分别通过空间维度上的全局最大池化和全局平均池化，和SE模块中的Squeeze类似，只不过这里使用两种池化，得到了两个结果，这两个结果再送到同一个MLP（多层感知机），这里相当于两个共享权重的Excitation操作，最后两个结果相加在进行sigmoid操作，这里可以看出来，整个Channel Attention过程其实就是稍微改变的SE模块。图片下面的结构是Spatial Attention的结构，这里的最大池化和平均池化是在Channel维度进行的，即对每个像素求出所有Channel的最大值或者平均值，最终得到两个Channel数量为1的特征图，两个特征图进行Concatenate之后经过一个$7\times7$卷积，最后使用sigmoid函数处理得到结果，这两个模块得到的结果都是用于和原始特征图相乘，一个是逐通道的调整特征响应的幅值，一个是逐像素的调整特征响应的幅值。
+
+![CBAM中的两种Attention结构](CBAM_detail.png)
+
+上面展示的两种结构在模型中先后使用，可以使得模型包含对不同channel响应幅度的调整能力的同时也包含对不同位置响应幅度的调整能力，在ResBlock中添加CBAM结构之后，模型的结构如下图所示。
+
+![ResBlock中使用CBAM结构](Resnet_CBAM.png)
+
+在该论文的实验中，CBAM模块在图像分类任务上提升不大，但是使用轻量级模型（MobileNet，ShuffleNet）试验时错误率相对于SE模块有一个百分点左右的下降（可能是参数增加，模型容量增大导致？），在目标检测任务上，ResNet+CBAM相比于原始的ResNet有一点几个百分点的mAP提升。
