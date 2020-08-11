@@ -51,7 +51,7 @@ $c = \sum_{z} P(x^{(i)}, z^{(i)}|\theta)$
 
 因此：
 
-$Q(z^{(i)}) = \frac{P(x^{(i)}, z^{(i)}|\theta)}{\sum_{z} P(x^{(i)}, z^{(i)}|\theta)} = \frac{P(x^{(i)}, z^{(i)}|\theta)}{\sum_{z} P(x^{(i)}|\theta)} = P(z^{(i)}|x^{(i)},\theta)$
+$Q(z^{(i)}) = \frac{P(x^{(i)}, z^{(i)}|\theta)}{\sum_{z} P(x^{(i)}, z^{(i)}|\theta)} = \frac{P(x^{(i)}, z^{(i)}|\theta)}{P(x^{(i)}|\theta)} = P(z^{(i)}|x^{(i)},\theta)$
 
 这样一来，确定了$Q(z^{(i)})$的值，等式可以成立，对数似然的下确界就被找到了，这个下确界即$\sum_{i=1}^{m} \sum_{z^{(i)}} Q(z^{(i)}) \log \frac{P(x^{(i)}, z^{(i)}|\theta)}{Q(z^{(i)})}$，接下来在Maximization步骤，固定$Q(z^{(i)})$，通过$\theta$来最大化这个下确界，可以间接的达到优化对数似然的目的。
 

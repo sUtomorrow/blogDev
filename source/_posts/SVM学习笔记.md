@@ -7,7 +7,7 @@ mathjax: true
 # 线性SVM详细推导
 首先，一个点$p \in \mathbb{R}^d$到超平面$w^Tx+b=0$的距离可以表示为$\frac{1}{||w||}|w^Tp + b|$。
 
-对于一个两类别数据集$X\in\mathbb{R}^d, Y\in\{0, 1\}$，定义间隔$\gamma=2\min_i\frac{1}{||w||}|w^Tx_i + b|$
+对于一个两类别数据集$X\in\mathbb{R}^d, Y\in\{-1, 1\}$，定义间隔$\gamma=2\min_i\frac{1}{||w||}|w^Tx_i + b|$
 
 线性支持向量机的目标即找到一组适合的参数$(w, b)$使得
 
@@ -54,8 +54,8 @@ $$
 
 $$
 \begin{aligned}
-&\triangledown_wL(w,b,\alpha) = 0 \\
-&\triangledown_bL(w,b,\alpha) = 0 \\
+&\triangledown_w\mathcal{L}(w,b,\alpha) = 0 \\
+&\triangledown_b\mathcal{L}(w,b,\alpha) = 0 \\
 &1 - y_i(w^T x_i + b) \le 0 \\
 &\alpha_i \ge 0 \\
 &\alpha_i(1 - y_i(w^Tx_i + b)) = 0

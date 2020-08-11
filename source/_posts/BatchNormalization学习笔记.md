@@ -64,7 +64,7 @@ $$
     &= \sum\limits_{i=1}^m \frac{\partial l}{\partial \hat{z}_i} \gamma (x_i - \mu_B)\cdot-\frac{1}{2}(\sigma^2_B +\epsilon)^{-\frac{3}{2}}\\
     \frac{\partial l}{\partial \mu_B} &= \sum_{i=1}^m\frac{\partial l}{\partial \hat{x}_i} \cdot -\frac{1}{\sqrt{\sigma^2_B + \epsilon}}\\
     &=\sum\limits_{i=1}^m \frac{\partial l}{\partial \hat{z}_i}\gamma \cdot -\frac{1}{\sqrt{\sigma^2_B + \epsilon}}\\
-    \frac{\partial l}{\partial x_i} &= \frac{\partial l}{\partial \hat{x}_i} \frac{1}{\sqrt{\sigma^2_B + \epsilon}} + \frac{l}{\sigma^2_B} \frac{2(x_i - \mu_B)}{m} + \frac{\partial l}{\partial \mu_B} \frac{1}{m}\\
+    \frac{\partial l}{\partial x_i} &= \frac{\partial l}{\partial \hat{x}_i} \frac{1}{\sqrt{\sigma^2_B + \epsilon}} + \frac{\partial l}{\partial \sigma^2_B} \frac{2(x_i - \mu_B)}{m} + \frac{\partial l}{\partial \mu_B} \frac{1}{m}\\
     &= \frac{\partial l}{\partial \hat{z}_i} \gamma \frac{1}{\sqrt{\sigma^2_B + \epsilon}} + \sum\limits_{j=1}^m (\frac{\partial l}{\partial \hat{z}_j} \gamma (x_j - \mu_B)\cdot-\frac{1}{2}(\sigma^2_B +\epsilon)^{-\frac{3}{2}}) \frac{2(x_i - \mu_B)}{m} + \sum\limits_{k=1}^m (\frac{\partial l}{\partial \hat{z}_k}\gamma \cdot -\frac{1}{\sqrt{\sigma^2_B + \epsilon}}) \frac{1}{m}\\
     &= \frac{\partial l}{\partial \hat{z}_i} \gamma \frac{1}{\sqrt{\sigma^2_B + \epsilon}} + \sum\limits_{j=1}^m \{\frac{\partial l}{\partial \hat{z}_j} \gamma [(x_j - \mu_B)\cdot-\frac{1}{2}(\sigma^2_B +\epsilon)^{-\frac{3}{2}}\frac{2(x_i - \mu_B)}{m} - \frac{1}{\sqrt{\sigma^2_B + \epsilon}} \frac{1}{m}]\}\\
     &= \frac{\partial l}{\partial \hat{z}_i} \gamma \frac{1}{\sqrt{\sigma^2_B + \epsilon}} - \sum\limits_{j=1}^m \{\frac{\partial l}{\partial \hat{z}_j} \frac{\gamma}{m} [(x_j - \mu_B)\cdot(\sigma^2_B +\epsilon)^{-\frac{3}{2}}(x_i - \mu_B) + \frac{1}{\sqrt{\sigma^2_B + \epsilon}}]\}\\
@@ -82,7 +82,16 @@ BatchNormalization的缺点也很明显：如果batch size比较小，那么想�
 
 ![各种normalization对比](normalization.png)
 
+## LayerNormalization
+
+LN对每个样本计算一个标量均值和方差，计算过程不受batch size的影响，常用在RNN中，但是如果同一个样本的特征区别较大，则不适合使用统一的均值和方差。
+
+## InstanceNormalization
+
+对每个样本计算C个均值和方差，
+
 ## GroupNormalization
+
 作为BatchNormalization的变种之一，GroupNormalization主要解决的问题是BatchNormalization对batch大小的依赖性。
 
 在CNN中，对于$N\times H\times W\times C$大小的特征图，BatchNormalization将其中每一个大小为$1\times 1\times 1\times C$看做一个样本，而GroupNormalization首先将$N\times H\times W\times C$大小的特征图拆分成$N\times H\times W\times \frac{C}{G}\times G$，然后在$H\times W\times \frac{C}{G}$范围内求方差和均值，得到$N \times G$个均值和方差，可以理解为样本个数为$H\times W\times \frac{C}{G}$，每个样本的维度为$N \times G$，这样做的好处是样本个数不依赖batch size，原论文中作者还解释说使用GroupNormalization将特征分组处理，更加符合特征之间的依赖性，对模型性能有提升。
