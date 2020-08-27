@@ -88,7 +88,7 @@ LN对每个样本计算一个标量均值和方差，计算过程不受batch siz
 
 ## InstanceNormalization
 
-对每个样本计算C个均值和方差，
+对每个样本计算C个均值和方差，不受batch size和通道数的影响，常用于风格化迁移，如果通道之间有相关性，则不适合使用IN。
 
 ## GroupNormalization
 
