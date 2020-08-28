@@ -127,7 +127,47 @@ $$
 \end{aligned}
 $$
 
-未完待续...
+下面记录一下看过的一些风格转换相关的论文
+
+### 论文《Arbitrary Style Transfer in Real-time with Adaptive Instance Normalization》
+这篇论文中构建了一个端到端的进行风格转换的模型，模型在预测时可以选择任意的style图片，而不是固定为训练过程中使用的style图片。其主要思想是认为style在CNN特征图中表达为特征的方差和均值，因此这个论文中使用一个Adaptive Instance Normalization（AdaIN）模块，通过计算style图片的特征图的Instance Normalization均值和方差，然后将content图片的特征图均值和方差按照style图片的均值和方差进行缩放，然后将该特征图进行解码，得到风格转换之后的图片。
+
+该方案的整体结构图如下所示，content图片和style图片都首先经过一个固定的预训练VGG-19模型编码，得到两个特征图，两个特征图输入到AdaIN模块中，用于根据style图片的特征图调整content图片的特征图的特征均值和方差，调整后的content特征图再通过一个解码器得到风格转换之后的输出，最后将输出图片再通过同样的VGG-19编码器进行编码，使用编码之后的输出计算content损失和style损失。
+![AdaIN模型结构示意图](AdaIN模型结构示意图.png)
+
+其损失函数设计如下，其中$L$是总的损失，由两部分组成，一个是content损失$L_c$，一个是style损失$L_s$，$L_c$是由模型输出$f(g(t))$和经过了AdaIN的特征图$t$计算，$f$表示编码器，$g$表示解码器。$L_s$是由编码器VGG的不同层特征$\phi_i$计算，这里只监督不同层特征的统计量，例如$\mu$表示特征的均值，$\sigma$表示特征的标准差。
+
+$$
+\begin{aligned}
+    L &= L_c + \lambda L_s\\
+    L_c &= ||f(g(t)) - t||_2\\
+    L_s &= \sum\limits_{i=1}^L ||\mu(\phi_i(g(t))) - \mu(\phi_i(s))||_2 + \sum\limits_{i=1}^L ||\sigma(\phi_i(g(t))) - \sigma(\phi_i(s))||_2
+\end{aligned}
+$$
+
+该文章实现了一个端到端的，可以使用任意style图片的风格转换任务，但是其缺点在于容易造成content的改变，我认为是因为这里没有一个独立的content编码分支造成的，或许可以从这里入手做一些改变，但是另一篇论文从双边联合滤波的角度给出了一种不同的方案，如下。
+
+### 论文《Joint Bilateral Learning for Real-time Universal Photorealistic Style Transfer》
+该论文尝试将风格转换问题设计为一个图像局部transform的问题，让模型去在低分辨率图像上去学习出一个transform系数，然后将transform系数应用于高分辨率图像以完成快速的高分辨率图像的风格转换处理工作，很大程度上借鉴了HDRnet，关于HDRnet的简单介绍可以参考我写的另一篇论文阅读记录{% post_link 论文阅读《Deep-Bilateral-Learning-for-Real-Time-Image-Enhancement》 论文阅读《Deep-Bilateral-Learning-for-Real-Time-Image-Enhancement》%}。
+
+论文中整体的模型结构如下图所示。
+
+![基于联合双边学习的图像风格转换模型结构示意图](基于联合双边学习的图像风格转换模型结构示意图.png)
+
+首先将低分辨率的content图片和低分辨率的style图片用VGG-19进行encoding，上面的top path部分主要是将VGG-19中conv2_1、conv3_1、conv4_1对应的特征图拿出来分别经过AdaIN层，以根据style图特征调整content图的特征，最终得到调整style后的不同分辨率的特征，下面的一个分支主要有三个splatting block组成，其结构可以参考图片右下角，主要是在学习Bilateral grid的splat操作，同时考虑到了style信息，因此使用了AdaIN层来对不同阶段的特征进行调整，因此这个叫做Style-base splatting，最终的特征还是和HDRnet一样，分成局部特征的学习和全局特征的学习，最后将局部特征和全局特征混合为双边网格$\Gamma$，作为即将对原图进行局部变换的系数，最后将双边网格以原分辨率图为guide图像进行slice操作插值到原分辨率大小的变换系数图，然后apply到原分辨图上，得到风格转换之后的输出图。
+
+该论文的损失函数设计如下，这里的$L_c$和$L_sa$其实和论文《Arbitrary Style Transfer in Real-time with Adaptive Instance Normalization》中的$L_c$和$L_s$类似，这里的$F_i$表示VGG的中间层特征输出，$N_c$表示取的中间层的个数，$I_c$表示低分辨率的content图片，$I_s$表示低分辨率的style图片，$\mu$和$\sigma$分别表示统计均值和标准差。这里新增了一个$L_r$损失，其中$s$表示双边网格上的一个位置，$N(s)$表示双边网格的$s$位置的邻域（论文里用的是6邻域），这一项损失主要是希望相邻的位置的仿射变换差别不大，使得其变换更加平滑。另外对于三个损失的系数，论文中使用的是$\lambda_c= 0.5，\lambda_sa =1，\lambda_r = 0.15$
+
+$$
+\begin{aligned}
+    L &= \lambda_c L_c + \lambda_sa L_{sa} + \lambda_r L_r\\
+    L_c &= \sum\limits_{i=1}^{N_c}||F_i[O] - F_i[I_c]||^2_2\\
+    L_{sa} &= \sum\limits_{i=1}^{N_s} ||\mu(F_i[O]) - \mu(F_i[I_s])||^2_2 + \sum\limits_{i=1}^{N_s} ||\sigma(F_i[O]) - \sigma(F_i[I_s])||^2_2\\
+    L_r &= \sum\limits_s \sum\limits_{t \in N(s)} ||\Gamma[s] - \Gamma[t]||^2_2
+\end{aligned}
+$$
+
+这个方法在style转换任务中主要的好处是速度快，而且很大程度上保留图片的内容信息，因为其transform过程仅仅针对原始图片上单像素的颜色变换，但是也正是这个原因，这个transform也存在和HDRnet一样的限制，例如在艺术风格的转换任务上（这个不是简单的颜色变换可以完成的）上效果就不是那么明显了，不过对于一般的颜色风格转换任务，这个方法还算是有了较好的效果和速度。
 
 ## 超分辨率
 
