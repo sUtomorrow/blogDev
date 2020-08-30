@@ -56,7 +56,7 @@ $$
 $$
 K \times W(P_R, P_G) \approx \max\limits_{|f_w|_L \le K} E_{x \sim P_R}f_w(x) - E_{x \sim P_G}f_w(x)
 $$
-这里$f_w$表示一个神经网络或者CNN所构成的判别器所表示的函数，$|f_w|_L$表示这个函数的Lipschitz常数（如果$\exist K, \forall x_1, x_2 \ |f(x_1) - f(x_2)| \le K|x_1 - x_2|$那么$K$就是函数$f$的Lipschitz常数）。
+这里$f_w$表示一个神经网络或者CNN所构成的判别器所表示的函数，$|f_w|_L$表示这个函数的Lipschitz常数（如果$\exists K, \forall x_1, x_2 \ |f(x_1) - f(x_2)| \le K|x_1 - x_2|$那么$K$就是函数$f$的Lipschitz常数）。
 
 因此我们将GAN的判别器损失改为$-E_{x \sim P_R}f_w(x) + E_{x \sim P_G}f_w(x)$，这样一来，判别器的目标不再是一个分类问题，而是求$\max\limits_{|f_w|_L \le K} E_{x \sim P_R}f_w(x) - E_{x \sim P_G}f_w(x)$以近似Wasserstein距离，因此需要去掉判别器中的sigmoid层，同时为了保证$|f_w|_L \le K$，这里需要将判别器模型中的参数值限定在一定范围内，这可以通过参数的clip操作来实现。
 
