@@ -8,13 +8,13 @@ subtitle: ''
 description: 'record something'
 keywords:
 author: Tengying Liu
-language: zh-CN
+language: zh-Hans
 timezone: ''
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://example.com/child' and root as '/child/'
-url: http://sUtomorrow.github.io/blog
-root: /blog/
+url: http://sUtomorrow.github.io
+root: /
 permalink: :year/:month/:day/:title/
 permalink_defaults:
 pretty_urls:
@@ -107,7 +107,7 @@ deploy:
   repo: git@github.com:sUtomorrow/sUtomorrow.github.io.git
   branch: master
 
-# 最后一段是需要添加的，主要是用来支持latex的，找了半天，也就这个事情费的少点。后面详述
+# 用来支持latex
 ## Docs: https://github.com/CHENXCHEN/hexo-renderer-markdown-it-plus
 markdown_it_plus:
     highlight: true
@@ -119,3 +119,11 @@ markdown_it_plus:
     typographer:
     quotes: “”‘’
     pre_class: highlight
+
+# Adds nofollow attribute to all external links in your hexo blog posts automatically.
+## https://github.com/liuzc/hexo-autonofollow
+nofollow:
+    enable: true
+    exclude: # 例外的链接，可将友链放在此处
+    - sUtomorrow.github.io # 排除你的站点
+    # - 友链地址
