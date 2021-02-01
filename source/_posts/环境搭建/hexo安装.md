@@ -21,6 +21,7 @@ tags: [杂项]
 
 得到以下输出
 
+	 hexo: 5.3.0
 	 hexo-cli: 4.2.0
 	 os: Windows_NT 10.0.19041 win32 x64
 	 node: 12.19.0
