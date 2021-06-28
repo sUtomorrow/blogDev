@@ -139,7 +139,7 @@ $$
 平面$m$可以用其法向量来表示，由叉乘的定义，$v \times p$所得到的向量$\hat{k}$垂直于平面$m$:
 $$
 \hat{k} = v \times p = \begin{bmatrix}
-    v_yp_z - v_zb_y\\v_zp_x - v_xb_z\\v_xp_y - v_yp_x
+    v_yp_z - v_zp_y\\v_zp_x - v_xp_z\\v_xp_y - v_yp_x
 \end{bmatrix}\\
 v = \begin{bmatrix}
     v_x\\v_y\\v_z
